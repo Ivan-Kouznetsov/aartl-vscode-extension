@@ -1,0 +1,16 @@
+{
+  "name": "aartl-lang-server-server",
+  "description": "Implementation of a language server for aarlt in node.",
+  "version": "1.0.0",
+  "author": "Ivan Kouznetsov",
+  "publisher": "ivan-kouznetsov",
+  "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^6.1.1",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "jsonpath": "^1.0.2"
+  }
+}

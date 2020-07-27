@@ -1,0 +1,18 @@
+{
+  "name": "aartl-lang-server-client",
+  "description": "VSCode part of a language server",
+  "author": "Ivan Kouznetsov",
+  "license": "MIT",
+  "version": "0.0.1",
+  "publisher": "ivan-kouznetsov",
+  "engines": {
+    "vscode": "^1.43.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^6.1.3"
+  },
+  "devDependencies": {
+    "@types/vscode": "1.43.0",
+    "vscode-test": "^1.3.0"
+  }
+}
