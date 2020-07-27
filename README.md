@@ -7,7 +7,7 @@ This Language Server works for aartl files. It has the following language featur
 - Completions
 - Diagnostics regenerated on each file change or configuration change
 
-![VSCode Screenshot](vscodeScreenshot.png)
+![VSCode Screenshot](https://raw.githubusercontent.com/Ivan-Kouznetsov/aartl-vscode-extension/master/vscodeScreenshot.png)
 
 ## Structure
 
