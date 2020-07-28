@@ -220,20 +220,29 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     }
   }
 
-  // check for lines that are not in a block
+  // check for lines that are not in a block and non data lines
   let inABlock = false;
+  let inBody = false;
   for (let i = 0; i < textDocument.lineCount; i++) {
     if (problems >= settings.maxNumberOfProblems) break;
     // https://github.com/Microsoft/vscode-languageserver-node/issues/146#issuecomment-356576587
     const currentLine = textDocument.getText(Range.create(i, -1, i, Number.MAX_VALUE)).trim();
 
     const testStart = 'Test that it should';
-    const blocks = ['Using values', 'After HTTP request', 'Expect HTTP request'];
-
+    const blocks = [
+      'Using values',
+      'After HTTP request',
+      'Expect HTTP request',
+      'To match header rules',
+      'To match JSON rules',
+    ];
+    const keywords = ['Pass on', 'To respond with status code'];
     if (currentLine.startsWith(testStart)) {
       inABlock = false;
+      inBody = false;
     } else if (blocks.find((b) => currentLine.startsWith(b))) {
       inABlock = true;
+      inBody = false;
     } else if (!inABlock) {
       problems++;
       diagnostics.push({
@@ -243,6 +252,27 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
           end: Position.create(i, Number.MAX_VALUE),
         },
         message: `This is outside of any block, this will not be executed by the test runner`,
+        source: 'aartl',
+      });
+    } else if (currentLine.startsWith('body:')) {
+      inBody = true;
+    } else if (currentLine.includes(':')) {
+      inBody = false;
+    } else if (
+      blocks.find((b) => currentLine.startsWith(b)) === undefined &&
+      keywords.find((k) => currentLine.startsWith(k)) === undefined &&
+      !inBody &&
+      currentLine.length > 0
+    ) {
+      // not a data line and not keyword or any of the above
+      problems++;
+      diagnostics.push({
+        severity: DiagnosticSeverity.Warning,
+        range: {
+          start: Position.create(i, 0),
+          end: Position.create(i, Number.MAX_VALUE),
+        },
+        message: `Should be a keyword or data, this seems like neither`,
         source: 'aartl',
       });
     }
