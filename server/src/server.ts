@@ -12,6 +12,7 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
   Position,
+  Range,
 } from 'vscode-languageserver';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -138,7 +139,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   // Here we get the settings for every validate run.
   const settings = await getDocumentSettings(textDocument.uri);
 
-  const text = textDocument.getText();
+  const documentText = textDocument.getText();
+
   const jsonPathPattern = /(?<=(Pass on){0,1}\s{0,}")[\$\s\w\.]*?(?="\s{0,}(:|as))/g;
   const emptyTitle = /Test that it should\s{0,}$/gm;
 
@@ -146,7 +148,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
   let problems = 0;
   let diagnostics: Diagnostic[] = [];
-  while ((m = jsonPathPattern.exec(text)) && problems < settings.maxNumberOfProblems) {
+
+  // check for invalid json paths
+
+  while ((m = jsonPathPattern.exec(documentText)) && problems < settings.maxNumberOfProblems) {
     if (!isValidJsonPath(m[0])) {
       problems++;
       diagnostics.push({
@@ -161,7 +166,9 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     }
   }
 
-  while ((m = emptyTitle.exec(text)) && problems < settings.maxNumberOfProblems) {
+  // check for empty paths
+
+  while ((m = emptyTitle.exec(documentText)) && problems < settings.maxNumberOfProblems) {
     problems++;
     diagnostics.push({
       severity: DiagnosticSeverity.Error,
@@ -172,6 +179,46 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       message: `${m[0]} test has to have a title`,
       source: 'aartl',
     });
+  }
+
+  // check for redefined using values
+  let usingValuesBlockCount = 0;
+  let inUsingValueBlock = false;
+  let valueNameCounts: { [key: string]: boolean } = {};
+
+  for (let i = 0; i < textDocument.lineCount; i++) {
+    if (problems >= settings.maxNumberOfProblems) break;
+    // https://github.com/Microsoft/vscode-languageserver-node/issues/146#issuecomment-356576587
+    const currentLine = textDocument.getText(Range.create(i, -1, i, Number.MAX_VALUE));
+    if (currentLine.trim() === 'Using values') {
+      //start of using values
+      inUsingValueBlock = true;
+      usingValuesBlockCount++;
+    } else if (!currentLine.includes(':') && currentLine.trim().length > 0) {
+      inUsingValueBlock = false;
+      valueNameCounts = {};
+    } else if (inUsingValueBlock) {
+      const valueNameMatch = /\S*?(?=\s{0,}:)/.exec(currentLine);
+      if (valueNameMatch !== null) {
+        const valueName = valueNameMatch[0];
+        if (typeof valueNameCounts[valueName] === 'undefined') {
+          valueNameCounts[valueName] = true;
+        } else {
+          // not unique
+
+          problems++;
+          diagnostics.push({
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: Position.create(i, currentLine.indexOf(valueName)),
+              end: Position.create(i, currentLine.indexOf(':')),
+            },
+            message: `${valueName} is already defined, value names must be unique`,
+            source: 'aartl',
+          });
+        }
+      }
+    }
   }
 
   // Send the computed diagnostics to VSCode.
