@@ -21,17 +21,17 @@ import * as jsonpath from 'jsonpath';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all);
+const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability: boolean = false;
-let hasWorkspaceFolderCapability: boolean = false;
-let hasDiagnosticRelatedInformationCapability: boolean = false;
+let hasConfigurationCapability = false;
+let hasWorkspaceFolderCapability = false;
+let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
-  let capabilities = params.capabilities;
+  const capabilities = params.capabilities;
 
   // Does the client support the `workspace/configuration` request?
   // If not, we fall back using global settings.
@@ -86,7 +86,7 @@ const defaultSettings: LangServerSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: LangServerSettings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<LangServerSettings>> = new Map();
+const documentSettings: Map<string, Thenable<LangServerSettings>> = new Map();
 
 connection.onDidChangeConfiguration((change) => {
   if (hasConfigurationCapability) {
@@ -141,13 +141,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
   const documentText = textDocument.getText();
 
-  const jsonPathPattern = /(?<=(Pass on){0,1}\s{0,}")[\$\s\w\.]*?(?="\s{0,}(:|as))/g;
+  const jsonPathPattern = /(?<=(Pass on){0,1}\s{0,}")[$\s\w.]*?(?="\s{0,}(:|as))/g;
   const emptyTitle = /Test that it should\s{0,}$/gm;
 
   let m: RegExpExecArray | null;
 
   let problems = 0;
-  let diagnostics: Diagnostic[] = [];
+  const diagnostics: Diagnostic[] = [];
 
   // check for invalid json paths
 
@@ -182,7 +182,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   }
 
   // check for redefined using values
-  let usingValuesBlockCount = 0;
   let inUsingValueBlock = false;
   let valueNameCounts: { [key: string]: boolean } = {};
 
@@ -193,7 +192,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     if (currentLine.trim() === 'Using values') {
       //start of using values
       inUsingValueBlock = true;
-      usingValuesBlockCount++;
     } else if (!currentLine.includes(':') && currentLine.trim().length > 0) {
       inUsingValueBlock = false;
       valueNameCounts = {};
@@ -220,7 +218,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       }
     }
   }
-
+  connection.console.log('Send the computed diagnostics to VSCode');
   // Send the computed diagnostics to VSCode.
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
