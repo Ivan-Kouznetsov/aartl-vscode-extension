@@ -18,6 +18,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { aliasesedMatchers } from './rules';
 import * as jsonpath from 'jsonpath';
+import { test } from 'mocha';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -97,7 +98,7 @@ connection.onDidChangeConfiguration((change) => {
   }
 
   // Revalidate all open text documents
-  //documents.all().forEach(validateTextDocument);
+  documents.all().forEach(validateTextDocument);
 });
 
 function getDocumentSettings(resource: string): Thenable<LangServerSettings> {
@@ -218,7 +219,35 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       }
     }
   }
-  connection.console.log('Send the computed diagnostics to VSCode');
+
+  // check for lines that are not in a block
+  let inABlock = false;
+  for (let i = 0; i < textDocument.lineCount; i++) {
+    if (problems >= settings.maxNumberOfProblems) break;
+    // https://github.com/Microsoft/vscode-languageserver-node/issues/146#issuecomment-356576587
+    const currentLine = textDocument.getText(Range.create(i, -1, i, Number.MAX_VALUE)).trim();
+
+    const testStart = 'Test that it should';
+    const blocks = ['Using values', 'After HTTP request', 'Expect HTTP request'];
+
+    if (currentLine.startsWith(testStart)) {
+      inABlock = false;
+    } else if (blocks.find((b) => currentLine.startsWith(b))) {
+      inABlock = true;
+    } else if (!inABlock) {
+      problems++;
+      diagnostics.push({
+        severity: DiagnosticSeverity.Warning,
+        range: {
+          start: Position.create(i, 0),
+          end: Position.create(i, Number.MAX_VALUE),
+        },
+        message: `This is outside of any block, this will not be executed by the test runner`,
+        source: 'aartl',
+      });
+    }
+  }
+
   // Send the computed diagnostics to VSCode.
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
