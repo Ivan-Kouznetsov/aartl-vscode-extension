@@ -18,7 +18,6 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { aliasesedMatchers } from './rules';
 import * as jsonpath from 'jsonpath';
-import { test } from 'mocha';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -277,6 +276,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       });
     }
   }
+
+  // check for lines in requests that are not valid
 
   // Send the computed diagnostics to VSCode.
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
