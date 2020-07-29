@@ -5,7 +5,7 @@
   "author": "Ivan Kouznetsov",
   "license": "MIT",
   "icon": "iceCream.png",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "ivan-kouznetsov",
   "repository": {
     "url": "https://github.com/Ivan-Kouznetsov/aartl-vscode-extension"
@@ -44,8 +44,12 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "aarlt configuration",
+      "title": "AARTL",
       "properties": {
+        "aartlLangServer.pathToTestRunner": {
+          "type": "string",
+          "default": ""
+        },
         "aartlLangServer.maxNumberOfProblems": {
           "scope": "resource",
           "type": "number",

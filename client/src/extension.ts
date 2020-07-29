@@ -1,11 +1,31 @@
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { ExtensionContext, languages, commands, Disposable, window, workspace } from 'vscode';
+import { CodelensProvider } from './CodelensProvider';
 
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
 
 let client: LanguageClient;
+let disposables: Disposable[] = [];
 
 export function activate(context: ExtensionContext) {
+  // Code Lens
+
+  const codelensProvider = new CodelensProvider();
+
+  languages.registerCodeLensProvider({ scheme: 'file', language: 'aartl' }, codelensProvider);
+
+  commands.registerCommand('aartl-lang-server-client.codelensAction', (arg: string) => {
+    const pathToTestRunner = workspace.getConfiguration('aartlLangServer').get('pathToTestRunner');
+
+    if (pathToTestRunner) {
+      const term = window.createTerminal();
+      term.sendText(`${pathToTestRunner} ${arg}`);
+      term.show();
+    } else {
+      window.showErrorMessage(`Please set Path To Test Runner in settings`);
+    }
+  });
+
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
   // The debug options for the server
@@ -41,6 +61,11 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+  if (disposables) {
+    disposables.forEach((item) => item.dispose());
+  }
+  disposables = [];
+
   if (!client) {
     return undefined;
   }
