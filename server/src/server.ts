@@ -21,17 +21,17 @@ import * as jsonpath from 'jsonpath';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all);
+const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability: boolean = false;
-let hasWorkspaceFolderCapability: boolean = false;
-let hasDiagnosticRelatedInformationCapability: boolean = false;
+let hasConfigurationCapability = false;
+let hasWorkspaceFolderCapability = false;
+let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
-  let capabilities = params.capabilities;
+  const capabilities = params.capabilities;
 
   // Does the client support the `workspace/configuration` request?
   // If not, we fall back using global settings.
@@ -86,7 +86,7 @@ const defaultSettings: LangServerSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: LangServerSettings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<LangServerSettings>> = new Map();
+const documentSettings: Map<string, Thenable<LangServerSettings>> = new Map();
 
 connection.onDidChangeConfiguration((change) => {
   if (hasConfigurationCapability) {
@@ -97,7 +97,7 @@ connection.onDidChangeConfiguration((change) => {
   }
 
   // Revalidate all open text documents
-  //documents.all().forEach(validateTextDocument);
+  documents.all().forEach(validateTextDocument);
 });
 
 function getDocumentSettings(resource: string): Thenable<LangServerSettings> {
@@ -141,13 +141,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
   const documentText = textDocument.getText();
 
-  const jsonPathPattern = /(?<=(Pass on){0,1}\s{0,}")[\$\s\w\.]*?(?="\s{0,}(:|as))/g;
+  const jsonPathPattern = /(?<=(Pass on){0,1}\s{0,}")[$\s\w.]*?(?="\s{0,}(:|as))/g;
   const emptyTitle = /Test that it should\s{0,}$/gm;
 
   let m: RegExpExecArray | null;
 
   let problems = 0;
-  let diagnostics: Diagnostic[] = [];
+  const diagnostics: Diagnostic[] = [];
 
   // check for invalid json paths
 
@@ -182,7 +182,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   }
 
   // check for redefined using values
-  let usingValuesBlockCount = 0;
   let inUsingValueBlock = false;
   let valueNameCounts: { [key: string]: boolean } = {};
 
@@ -193,7 +192,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     if (currentLine.trim() === 'Using values') {
       //start of using values
       inUsingValueBlock = true;
-      usingValuesBlockCount++;
     } else if (!currentLine.includes(':') && currentLine.trim().length > 0) {
       inUsingValueBlock = false;
       valueNameCounts = {};
@@ -218,6 +216,64 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
           });
         }
       }
+    }
+  }
+
+  // check for lines that are not in a block and non data lines
+  let inABlock = false;
+  let inBody = false;
+  for (let i = 0; i < textDocument.lineCount; i++) {
+    if (problems >= settings.maxNumberOfProblems) break;
+    // https://github.com/Microsoft/vscode-languageserver-node/issues/146#issuecomment-356576587
+    const currentLine = textDocument.getText(Range.create(i, -1, i, Number.MAX_VALUE)).trim();
+
+    const testStart = 'Test that it should';
+    const blocks = [
+      'Using values',
+      'After HTTP request',
+      'Expect HTTP request',
+      'To match header rules',
+      'To match JSON rules',
+    ];
+    const keywords = ['Pass on', 'To respond with status code'];
+    if (currentLine.startsWith(testStart)) {
+      inABlock = false;
+      inBody = false;
+    } else if (blocks.find((b) => currentLine.startsWith(b))) {
+      inABlock = true;
+      inBody = false;
+    } else if (!inABlock) {
+      problems++;
+      diagnostics.push({
+        severity: DiagnosticSeverity.Warning,
+        range: {
+          start: Position.create(i, 0),
+          end: Position.create(i, Number.MAX_VALUE),
+        },
+        message: `This is outside of any block, this will not be executed by the test runner`,
+        source: 'aartl',
+      });
+    } else if (currentLine.startsWith('body:')) {
+      inBody = true;
+    } else if (currentLine.includes(':')) {
+      inBody = false;
+    } else if (
+      blocks.find((b) => currentLine.startsWith(b)) === undefined &&
+      keywords.find((k) => currentLine.startsWith(k)) === undefined &&
+      !inBody &&
+      currentLine.length > 0
+    ) {
+      // not a data line and not keyword or any of the above
+      problems++;
+      diagnostics.push({
+        severity: DiagnosticSeverity.Warning,
+        range: {
+          start: Position.create(i, 0),
+          end: Position.create(i, Number.MAX_VALUE),
+        },
+        message: `Should be a keyword or data, this seems like neither`,
+        source: 'aartl',
+      });
     }
   }
 

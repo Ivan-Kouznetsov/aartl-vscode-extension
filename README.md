@@ -29,7 +29,7 @@ Within the directory for this project:
 ```
 npm install -g vsce
 vsce package
-code --install-extension aartl-lang-server-0.1.0.vsix
+code --install-extension aartl-lang-server-0.1.1.vsix
 ```
 
 ## Debugging
