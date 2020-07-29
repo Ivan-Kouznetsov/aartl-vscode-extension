@@ -277,8 +277,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     }
   }
 
-  // check for lines in requests that are not valid
-
   // Send the computed diagnostics to VSCode.
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
