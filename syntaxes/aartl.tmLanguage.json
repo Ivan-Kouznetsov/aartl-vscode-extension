@@ -30,7 +30,7 @@
         },
         {
           "name": "support.function.aartl",
-          "match": "\\b(is\\sa\\snumber|is\\stext\\scontaining|is\\stext\\snot\\scontaining|is\\stext|is\\sany\\sof|is\\snot|matches|each\\shas\\sa|count)\\b"
+          "match": "\\b(is\\sa\\snumber|is\\stext\\scontaining|is\\stext\\snot\\scontaining|is\\stext|is\\sany\\sof|is\\snot|matches|each\\shas|count)\\b"
         },
         {
           "name": "constant.other.aartl",
