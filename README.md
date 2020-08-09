@@ -6,6 +6,8 @@ This Language Server works for aartl files. It has the following language featur
 
 - Completions
 - Diagnostics regenerated on each file change or configuration change
+- Generating test rules based on actual responses
+- Running tests
 
 ![VSCode Screenshot](https://raw.githubusercontent.com/Ivan-Kouznetsov/aartl-vscode-extension/master/vscodeScreenshot.png)
 
@@ -29,8 +31,10 @@ Within the directory for this project:
 ```
 npm install -g vsce
 vsce package
-code --install-extension aartl-lang-server-0.1.3.vsix
+code --install-extension aartl-lang-server-VERSION.vsix
 ```
+
+Replace VERSION with the current version.
 
 ## Debugging
 
