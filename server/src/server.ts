@@ -307,6 +307,11 @@ const isRule = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
   return /"\$.+":\s/.test(line);
 };
 
+const isHeaderRule = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
+  const line = getLineUpToCursor(_textDocumentPosition);
+  return /"[^$.]+":\s/.test(line);
+};
+
 const isMethod = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
   const line = getLineUpToCursor(_textDocumentPosition);
   return line.includes('method:');
@@ -335,6 +340,8 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
   const dataKind = CompletionItemKind.Variable;
   const ruleKind = CompletionItemKind.Method;
   const httpMethods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'];
+  const headerRules = ['must not be present'];
+
   if (isMethod(_textDocumentPosition)) {
     return httpMethods.map((m) => ({ kind: methodKind, label: m }));
   } else if (isBlank(_textDocumentPosition)) {
@@ -412,8 +419,9 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
     ];
   } else if (isRule(_textDocumentPosition)) {
     return aliasesedMatchers.map((a) => ({ kind: ruleKind, label: a.alias }));
+  } else if (isHeaderRule(_textDocumentPosition)) {
+    return headerRules.map((hr) => ({ kind: ruleKind, label: hr }));
   }
-
   return [];
 });
 
