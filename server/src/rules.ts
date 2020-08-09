@@ -15,5 +15,5 @@ export const aliasesedMatchers = [
   { alias: 'count >=', argCount: 1 },
   { alias: 'count <', argCount: 1 },
   { alias: 'count <=', argCount: 1 },
-  { alias: 'each has a', argCount: 1 },
+  { alias: 'each has', argCount: 1 },
 ];
