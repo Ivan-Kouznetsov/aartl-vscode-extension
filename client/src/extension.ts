@@ -1,8 +1,8 @@
 import * as path from 'path';
-import { ExtensionContext, languages, commands, Disposable, window, workspace, Location, Position } from 'vscode';
+import { ExtensionContext, languages, commands, Disposable, window, workspace, Position } from 'vscode';
 import { CodelensProvider } from './CodelensProvider';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { IRequest, IKeyValuePair } from './test-writer/interfaces/test';
+import { IKeyValuePair } from './test-writer/interfaces/test';
 import { request } from './http-promise';
 import { traverseObject } from './test-writer/traverseObject';
 import { ruleWriter } from './test-writer/ruleWriter';
@@ -47,14 +47,13 @@ export function activate(context: ExtensionContext) {
         const editor = window.activeTextEditor;
         const paths = traverseObject(data.json);
         const rules = ruleWriter(data.json, paths);
-        const formattedRules = rules.map((r) => `"${Object.keys(r)[0]}": ${r[Object.keys(r)[0]]}`).join('\n');
+        const formattedRules = rules.map((r) => `\t"${Object.keys(r)[0]}": ${r[Object.keys(r)[0]]}`).join('\n');
 
         if (editor) {
           editor.edit((editBuilder) => {
             editBuilder.insert(new Position(lineIndex + 1, 0), formattedRules);
           });
         }
-        window.showInformationMessage(formattedRules);
       } else {
         window.showErrorMessage('Request did not return JSON');
       }
