@@ -1,28 +1,65 @@
 import * as path from 'path';
-import { ExtensionContext, languages, commands, Disposable, window, workspace } from 'vscode';
+import { ExtensionContext, languages, commands, Disposable, window, workspace, Location, Position } from 'vscode';
 import { CodelensProvider } from './CodelensProvider';
-
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
+import { IRequest, IKeyValuePair } from './test-writer/interfaces/test';
+import { request } from './http-promise';
+import { traverseObject } from './test-writer/traverseObject';
+import { ruleWriter } from './test-writer/ruleWriter';
 
 let client: LanguageClient;
 let disposables: Disposable[] = [];
 
+export const keyValuePairArrayHashTable = (arr: IKeyValuePair[]): { [key: string]: string } => {
+  const result: { [key: string]: string } = {};
+
+  arr.forEach((item) => {
+    const key = Object.keys(item)[0].toString();
+    result[key] = item[key].toString();
+  });
+  return result;
+};
+
 export function activate(context: ExtensionContext) {
   // Code Lens
-
+  const pathToTestRunner = workspace.getConfiguration('aartlLangServer').get('pathToTestRunner');
   const codelensProvider = new CodelensProvider();
 
   languages.registerCodeLensProvider({ scheme: 'file', language: 'aartl' }, codelensProvider);
 
-  commands.registerCommand('aartl-lang-server-client.codelensAction', (arg: string) => {
-    const pathToTestRunner = workspace.getConfiguration('aartlLangServer').get('pathToTestRunner');
-
+  commands.registerCommand('aartl-lang-server-client.runAction', (arg: string) => {
     if (pathToTestRunner) {
       const term = window.createTerminal();
       term.sendText(`${pathToTestRunner} ${arg}`);
       term.show();
     } else {
       window.showErrorMessage(`Please set Path To Test Runner in settings`);
+    }
+  });
+
+  commands.registerCommand('aartl-lang-server-client.genAction', async (args: any) => {
+    window.showInformationMessage('Trying to generate JSON rules');
+    try {
+      const { req, lineIndex } = args;
+
+      const data = await request(req.url, req.method, keyValuePairArrayHashTable(req.headers), req.body, 10000);
+      if (data.json) {
+        const editor = window.activeTextEditor;
+        const paths = traverseObject(data.json);
+        const rules = ruleWriter(data.json, paths);
+        const formattedRules = rules.map((r) => `"${Object.keys(r)[0]}": ${r[Object.keys(r)[0]]}`).join('\n');
+
+        if (editor) {
+          editor.edit((editBuilder) => {
+            editBuilder.insert(new Position(lineIndex + 1, 0), formattedRules);
+          });
+        }
+        window.showInformationMessage(formattedRules);
+      } else {
+        window.showErrorMessage('Request did not return JSON');
+      }
+    } catch (ex) {
+      window.showErrorMessage('Could not generate JSON rules because ' + JSON.stringify(ex));
     }
   });
 

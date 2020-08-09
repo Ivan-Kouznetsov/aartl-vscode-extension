@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import url = require('url');
-
+import * as parser from './test-writer/parser';
 /**
  * CodelensProvider
  */
@@ -9,6 +9,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
   private regex: RegExp;
   private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
   public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
+
+  private isEndOfRequest = (line: string) => line.startsWith('To match JSON');
 
   constructor() {
     this.regex = /Test that it should/g;
@@ -35,12 +37,34 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         this.codeLenses.push(
           new vscode.CodeLens(range, {
             title: 'Run Test',
-            command: 'aartl-lang-server-client.codelensAction',
+            command: 'aartl-lang-server-client.runAction',
             arguments: [
               `-f "${url.fileURLToPath(document.uri.toString())}" -t "${line.text.replace('Test that it', '').trim()}"`,
             ],
           })
         );
+        try {
+          // todo parse and do request
+          const lines = [];
+          let i = 0;
+          for (i = document.positionAt(matches.index).line + 1; i < document.lineCount; i++) {
+            lines.push(document.lineAt(i).text);
+            if (this.isEndOfRequest(document.lineAt(i).text)) break;
+          }
+
+          const reqs = parser.splitTestIntoSections(parser.preProcess(lines.join('\n'))).requests;
+          if (reqs.length === 1) {
+            this.codeLenses.push(
+              new vscode.CodeLens(range, {
+                title: 'Generate JSON Rules',
+                command: 'aartl-lang-server-client.genAction',
+                arguments: [{ req: reqs[reqs.length - 1], lineIndex: i }],
+              })
+            );
+          }
+        } catch {
+          console.log("Can't find a request");
+        }
       }
     }
     return this.codeLenses;

@@ -5,7 +5,7 @@
   "author": "Ivan Kouznetsov",
   "license": "MIT",
   "icon": "iceCream.png",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "publisher": "ivan-kouznetsov",
   "repository": {
     "url": "https://github.com/Ivan-Kouznetsov/aartl-vscode-extension"
@@ -88,6 +88,7 @@
   },
   "dependencies": {
     "@types/jsonpath": "^0.2.0",
+    "@types/node-fetch": "^2.5.7",
     "jsonpath": "^1.0.2"
   }
 }
