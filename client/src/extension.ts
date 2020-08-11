@@ -22,12 +22,13 @@ export const keyValuePairArrayHashTable = (arr: IKeyValuePair[]): { [key: string
 
 export function activate(context: ExtensionContext) {
   // Code Lens
-  const pathToTestRunner = workspace.getConfiguration('aartl').get('pathToTestRunner');
   const codelensProvider = new CodelensProvider();
 
   languages.registerCodeLensProvider({ scheme: 'file', language: 'aartl' }, codelensProvider);
 
   commands.registerCommand('aartl-lang-server-client.runAction', (arg: string) => {
+    const pathToTestRunner = workspace.getConfiguration('aartl').get('pathToTestRunner');
+
     if (pathToTestRunner) {
       const term = window.createTerminal();
       term.sendText(`${pathToTestRunner} ${arg}`);
