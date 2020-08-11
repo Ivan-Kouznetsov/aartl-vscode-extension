@@ -22,7 +22,7 @@ export const keyValuePairArrayHashTable = (arr: IKeyValuePair[]): { [key: string
 
 export function activate(context: ExtensionContext) {
   // Code Lens
-  const pathToTestRunner = workspace.getConfiguration('aartlLangServer').get('pathToTestRunner');
+  const pathToTestRunner = workspace.getConfiguration('aartl').get('pathToTestRunner');
   const codelensProvider = new CodelensProvider();
 
   languages.registerCodeLensProvider({ scheme: 'file', language: 'aartl' }, codelensProvider);
@@ -38,7 +38,7 @@ export function activate(context: ExtensionContext) {
   });
 
   commands.registerCommand('aartl-lang-server-client.genAction', async (args: any) => {
-    window.showInformationMessage('Trying to generate JSON rules');
+    window.showInformationMessage('Generating JSON rules');
     try {
       const { req, lineIndex } = args;
 
@@ -90,7 +90,7 @@ export function activate(context: ExtensionContext) {
   };
 
   // Create the language client and start the client.
-  client = new LanguageClient('aartlLangServer', 'Aartl Language Server', serverOptions, clientOptions);
+  client = new LanguageClient('aartl', 'Aartl Language Server', serverOptions, clientOptions);
 
   // Start the client. This will also launch the server
   client.start();
