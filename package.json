@@ -4,9 +4,9 @@
   "description": "A plugin for AARTL",
   "author": "Ivan Kouznetsov",
   "license": "MIT",
-  "icon": "iceCream.png",
+  "icon": "pyramid.png",
   "version": "0.4.4",
-  "publisher": "ivan-kouznetsov",
+  "publisher": "IvanKouznetsov",
   "repository": {
     "url": "https://github.com/Ivan-Kouznetsov/aartl-vscode-extension"
   },
@@ -46,17 +46,17 @@
       "type": "object",
       "title": "AARTL",
       "properties": {
-        "aartlLangServer.pathToTestRunner": {
+        "aartl.pathToTestRunner": {
           "type": "string",
           "default": ""
         },
-        "aartlLangServer.maxNumberOfProblems": {
+        "aartl.maxNumberOfProblems": {
           "scope": "resource",
           "type": "number",
           "default": 100,
           "description": "Controls the maximum number of problems produced by the server."
         },
-        "aartlLangServer.trace.server": {
+        "aartl.trace.server": {
           "scope": "window",
           "type": "string",
           "enum": [

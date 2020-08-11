@@ -93,7 +93,7 @@ connection.onDidChangeConfiguration((change) => {
     // Reset all cached document settings
     documentSettings.clear();
   } else {
-    globalSettings = <LangServerSettings>(change.settings.aartlLangServer || defaultSettings);
+    globalSettings = <LangServerSettings>(change.settings.aartl || defaultSettings);
   }
 
   // Revalidate all open text documents
@@ -108,7 +108,7 @@ function getDocumentSettings(resource: string): Thenable<LangServerSettings> {
   if (!result) {
     result = connection.workspace.getConfiguration({
       scopeUri: resource,
-      section: 'aartlLangServer',
+      section: 'aartl',
     });
     documentSettings.set(resource, result);
   }
@@ -261,7 +261,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       blocks.find((b) => currentLine.startsWith(b)) === undefined &&
       keywords.find((k) => currentLine.startsWith(k)) === undefined &&
       !inBody &&
-      currentLine.length > 0
+      currentLine.length > 0 &&
+      !currentLine.startsWith('/**')
     ) {
       // not a data line and not keyword or any of the above
       problems++;
