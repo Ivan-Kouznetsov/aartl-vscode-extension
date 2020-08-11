@@ -261,7 +261,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       blocks.find((b) => currentLine.startsWith(b)) === undefined &&
       keywords.find((k) => currentLine.startsWith(k)) === undefined &&
       !inBody &&
-      currentLine.length > 0
+      currentLine.length > 0 &&
+      !currentLine.startsWith('/**')
     ) {
       // not a data line and not keyword or any of the above
       problems++;
