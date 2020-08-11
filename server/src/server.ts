@@ -305,7 +305,7 @@ const getLineUpToCursor = (_textDocumentPosition: TextDocumentPositionParams) =>
 
 const isRule = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
   const line = getLineUpToCursor(_textDocumentPosition);
-  return /"\$.+":\s/.test(line);
+  return /"\$.{0,}":\s/.test(line);
 };
 
 const isHeaderRule = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
