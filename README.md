@@ -13,4 +13,4 @@ An extension for Agnostic API Reliability Testing Language (AARTL) files. It has
 
 ## Limitations
 
-Generating test rules based on actual responses is only avialble for tests that have one request
+Generating test rules based on actual responses is only available for tests that have one request
