@@ -1,5 +1,9 @@
 # AARTL for Visual Studio Code
 
+## Requirements
+
+To use this extension you need to have the [AARTL test runner](https://github.com/Ivan-Kouznetsov/aartl/releases) on your machine.
+
 ## Functionality
 
 An extension for Agnostic API Reliability Testing Language (AARTL) files. It has the following features:
