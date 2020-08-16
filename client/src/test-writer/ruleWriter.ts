@@ -1,6 +1,6 @@
 import { ITypedPath, PathType } from './types/ITypedPath';
 import * as jsonpath from 'jsonpath';
-import { validateSorted, NotFound } from './matchers';
+import { validateSorted, NotFound, validateDate } from './matchers';
 
 export const getCommonTopLevelProperties = (objects: any[]) => {
   const props: string[] = [];
@@ -38,6 +38,7 @@ export const startsAt = (values: number[], proposedLowestValue: number) =>
   values.includes(proposedLowestValue) && Math.min(...values) >= proposedLowestValue;
 
 const isSorted = (direction: string, objects: any[]) => validateSorted(direction)(objects) === NotFound;
+const isDate = (objects: any[]) => validateDate()(objects) === NotFound;
 
 export const createRules = (obj: any, path: ITypedPath): { [key: string]: string }[] => {
   const objects = jsonpath.query(obj, path.path);
@@ -71,7 +72,9 @@ export const createRules = (obj: any, path: ITypedPath): { [key: string]: string
       }
       break;
     case PathType.string:
-      if (same.alwaysTheSame) {
+      if (isDate(objects)) {
+        rules.push({ [path.path]: 'is a date' });
+      } else if (same.alwaysTheSame) {
         rules.push({ [path.path]: same.value.toString() });
       } else {
         rules.push({ [path.path]: 'is text' });
