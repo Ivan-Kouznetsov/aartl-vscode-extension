@@ -30,7 +30,7 @@
         },
         {
           "name": "support.function.aartl",
-          "match": "\\b(must not be present|properties\\slimited\\sto|is\\sa\\snumber|is\\stext\\scontaining|is\\stext\\snot\\scontaining|is\\stext|is\\sany\\sof|is\\snot|matches|each\\shas|count)\\b"
+          "match": "\\b(is after|is as early as|is as late as|is a date|is earlier than|is same date as|is same date and time as|is sorted|must not be present|properties\\slimited\\sto|is\\sa\\snumber|is\\stext\\scontaining|is\\stext\\snot\\scontaining|is\\stext|is\\sany\\sof|is\\snot|matches|each\\shas|count)\\b"
         },
         {
           "name": "constant.other.aartl",

@@ -419,7 +419,7 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
       },
     ];
   } else if (isRule(_textDocumentPosition)) {
-    return aliasesedMatchers.map((a) => ({ kind: ruleKind, label: a.alias }));
+    return aliasesedMatchers.map((a) => ({ kind: ruleKind, label: a }));
   } else if (isHeaderRule(_textDocumentPosition)) {
     return headerRules.map((hr) => ({ kind: ruleKind, label: hr }));
   }
