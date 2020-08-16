@@ -5,7 +5,7 @@
   "author": "Ivan Kouznetsov",
   "license": "MIT",
   "icon": "pyramid.png",
-  "version": "0.4.8",
+  "version": "0.6.0",
   "publisher": "IvanKouznetsov",
   "repository": {
     "url": "https://github.com/Ivan-Kouznetsov/aartl-vscode-extension"

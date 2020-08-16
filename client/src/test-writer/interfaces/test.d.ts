@@ -1,3 +1,6 @@
+import { NotFound } from '../matchers';
+import { ArgCount } from '../enums/argCount';
+
 export interface IKeyValuePair {
   [key: string]: string | number | boolean;
 }
@@ -21,11 +24,11 @@ export interface ITest {
 }
 
 export type Primitive = boolean | string | number | Record<string, unknown>;
-export type MatcherFunction = (arr: Primitive[]) => Primitive | undefined;
-export type Factory = (arg?: RegExp | Primitive | Primitive[]) => MatcherFunction;
+export type MatcherFunction = (arr: Primitive[]) => Primitive | typeof NotFound;
+export type Factory = (arg?: Primitive | Primitive[]) => MatcherFunction;
 
 export interface IRule {
   factory: Factory;
-  alias: string;
-  argCount: number;
+  args: (string | number)[];
+  expectedArgs: ArgCount;
 }
