@@ -30,9 +30,11 @@ export function activate(context: ExtensionContext) {
     const pathToTestRunner = workspace.getConfiguration('aartl').get('pathToTestRunner');
 
     if (pathToTestRunner) {
-      const term = window.createTerminal();
-      term.sendText(`${pathToTestRunner} ${arg}`);
-      term.show();
+      workspace.saveAll().then(() => {
+        const term = window.createTerminal();
+        term.sendText(`${pathToTestRunner} ${arg}`);
+        term.show();
+      });
     } else {
       window.showErrorMessage(`Please set Path To Test Runner in settings`);
     }
