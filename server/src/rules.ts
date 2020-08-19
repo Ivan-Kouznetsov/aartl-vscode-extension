@@ -25,4 +25,7 @@ export const aliasesedMatchers = [
   'is same date as',
   'is same date and time as',
   'is sorted',
+  'is today',
+  'is after today',
+  'is before today',
 ];
