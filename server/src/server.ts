@@ -291,17 +291,20 @@ connection.onDidChangeWatchedFiles((_change) => {
  * Helpers for checking context
  */
 
-const getLineUpToCursor = (_textDocumentPosition: TextDocumentPositionParams) => {
+const getTextUpToCursor = (_textDocumentPosition: TextDocumentPositionParams, line = 0) => {
   const currentDocument = documents.get(_textDocumentPosition.textDocument.uri);
   if (currentDocument) {
     return currentDocument.getText({
-      start: Position.create(_textDocumentPosition.position.line, 0),
+      start: Position.create(line, 0),
       end: _textDocumentPosition.position,
     });
   }
 
   return '';
 };
+
+const getLineUpToCursor = (_textDocumentPosition: TextDocumentPositionParams) =>
+  getTextUpToCursor(_textDocumentPosition, _textDocumentPosition.position.line);
 
 const isRule = (_textDocumentPosition: TextDocumentPositionParams): boolean => {
   const line = getLineUpToCursor(_textDocumentPosition);
@@ -401,12 +404,16 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
       },
     ];
   } else if (isUrl(_textDocumentPosition)) {
-    return [
-      {
-        label: 'http://localhost',
-        kind: CompletionItemKind.Text,
-      },
-    ];
+    const text = getTextUpToCursor(_textDocumentPosition);
+    const urls = text.match(/(?<=url:\s{0,})\S+/gm) ?? [];
+    const items = urls.map((url) => ({ kind: CompletionItemKind.File, label: url }));
+
+    items.push({
+      label: 'http://localhost',
+      kind: CompletionItemKind.File,
+    });
+
+    return items;
   } else if (isWaitFor(_textDocumentPosition)) {
     return [
       {
