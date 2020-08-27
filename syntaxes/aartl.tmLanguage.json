@@ -22,7 +22,7 @@
         },
         {
           "name": "variable.parameter.aartl",
-          "match": "\\b(method|url|body|headers)\\b"
+          "match": "\\b(body from fixture|method|url|body|headers)\\b"
         },
         {
           "name": "comment.aartl",
