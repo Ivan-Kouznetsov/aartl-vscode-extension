@@ -379,6 +379,10 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
         kind: dataKind,
       },
       {
+        label: 'body from fixture:',
+        kind: dataKind,
+      },
+      {
         label: 'headers:',
         kind: dataKind,
       },
