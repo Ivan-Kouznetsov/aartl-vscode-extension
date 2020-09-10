@@ -22,7 +22,7 @@ export const keyValuePairArrayHashTable = (arr: IKeyValuePair[]): { [key: string
 };
 
 export function activate(context: ExtensionContext) {
-  // Palatte
+  // Palette
   context.subscriptions.push(
     commands.registerCommand('aartl.inputOpenApiUrl', async () => {
       const url = await window.showInputBox({
