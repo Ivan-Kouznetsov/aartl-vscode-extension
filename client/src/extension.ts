@@ -5,7 +5,8 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } f
 import { IKeyValuePair } from './test-writer/interfaces/test';
 import { request } from './http-promise';
 import { traverseObject } from './test-writer/traverseObject';
-import { ruleWriter } from './test-writer/ruleWriter';
+import { createRulesFromRealData } from './test-writer/ruleWriter';
+import { createRulesFromOpenApi } from './test-writer/openApiRuleWriter';
 
 let client: LanguageClient;
 let disposables: Disposable[] = [];
@@ -21,6 +22,31 @@ export const keyValuePairArrayHashTable = (arr: IKeyValuePair[]): { [key: string
 };
 
 export function activate(context: ExtensionContext) {
+  // Palatte
+  context.subscriptions.push(
+    commands.registerCommand('aartl.inputOpenApiUrl', async () => {
+      const url = await window.showInputBox({
+        value: '',
+        placeHolder: 'https://petstore.swagger.io/v2/swagger.json',
+      });
+
+      try {
+        const data = await request(url, 'get', { accept: 'application/json' });
+        const rules = createRulesFromOpenApi(data.json);
+
+        const editor = window.activeTextEditor;
+
+        if (editor) {
+          editor.edit((editBuilder) => {
+            editBuilder.insert(new Position(editor.selection.active.line, 0), rules + '\n');
+          });
+        }
+      } catch {
+        if (url !== undefined) window.showErrorMessage('Could not get Open API defintions from ' + url);
+      }
+    })
+  );
+
   // Code Lens
   const codelensProvider = new CodelensProvider();
 
@@ -49,7 +75,7 @@ export function activate(context: ExtensionContext) {
       if (data.json) {
         const editor = window.activeTextEditor;
         const paths = traverseObject(data.json);
-        const rules = ruleWriter(data.json, paths);
+        const rules = createRulesFromRealData(data.json, paths);
         const formattedRules = rules.map((r) => `\t"${Object.keys(r)[0]}": ${r[Object.keys(r)[0]]}`).join('\n');
 
         if (editor) {

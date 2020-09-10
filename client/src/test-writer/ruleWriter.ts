@@ -93,7 +93,7 @@ export const createRules = (obj: any, path: ITypedPath): { [key: string]: string
   return rules;
 };
 
-export const ruleWriter = (obj: any, paths: Set<ITypedPath>): { [key: string]: string }[] => {
+export const createRulesFromRealData = (obj: any, paths: Set<ITypedPath>): { [key: string]: string }[] => {
   const result: { [key: string]: string }[] = [];
 
   paths.forEach((path) => {
