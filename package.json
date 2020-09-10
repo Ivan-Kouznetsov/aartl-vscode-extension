@@ -5,8 +5,7 @@
   "author": "Ivan Kouznetsov",
   "license": "MIT",
   "icon": "pyramid.png",
-  "version": "0.8.1",
-
+  "version": "0.9.0",
   "publisher": "IvanKouznetsov",
   "repository": {
     "url": "https://github.com/Ivan-Kouznetsov/aartl-vscode-extension"
@@ -19,7 +18,8 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:aartl"
+    "onLanguage:aartl",
+    "onCommand:aartl.inputOpenApiUrl"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -69,7 +69,13 @@
           "description": "Traces the communication between VS Code and the language server."
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "aartl.inputOpenApiUrl",
+        "title": "AARTL: Create rules from Open API definitions"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint . --ext .ts --fix",
