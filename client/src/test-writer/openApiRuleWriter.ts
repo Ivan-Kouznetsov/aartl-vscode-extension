@@ -2,6 +2,7 @@ import { IOpenApiDocSegment, IOpenApiProp } from './interfaces/openApi';
 import { value } from 'jsonpath';
 import * as assert from 'assert';
 import { IKeyValuePair } from './interfaces/test';
+
 const refToJsonPath = (ref: string) => ref.replace(/#/g, '$').replace(/\//g, '.');
 
 let parentDefs: IOpenApiDocSegment | null = null;
