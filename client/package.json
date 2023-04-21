@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "vscode-languageclient": "^6.1.3",
-    "jsonpath": "^1.0.2"
+    "jsonpath": "^1.1.1"
   },
   "devDependencies": {
     "@types/vscode": "1.43.0",
